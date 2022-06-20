@@ -31,7 +31,7 @@
   networking = {
     useDHCP = false;
     interfaces.enp1s0.useDHCP = true;
-    hostName = "fedora"; # Define your hostname.
+    hostName = "nixtst"; # Define your hostname.
     firewall = {
       enable = true;
       allowedTCPPorts = [ 80 443 2022 ];
