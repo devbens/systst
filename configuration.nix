@@ -31,7 +31,7 @@
   networking = {
     useDHCP = false;
     interfaces.enp1s0.useDHCP = true;
-    hostName = "nixtst"; # Define your hostname.
+    hostName = "fedora"; # Define your hostname.
     firewall = {
       enable = true;
       allowedTCPPorts = [ 80 443 2022 ];
@@ -40,25 +40,11 @@
     };
   };
 
-  time.timeZone = "Asia/Singapore";
+  time.timeZone = "Europe/Sarajevo";
 
   i18n = {
     defaultLocale = "en_US.UTF-8";
     supportedLocales = [ "en_US.UTF-8/UTF-8" ];
-  };
-
-  console = {
-    font = "Lat2-Terminus16";
-    keyMap = "us";
-  };
-
-  fonts = {
-    fontDir.enable = true;
-    enableGhostscriptFonts = true;
-    fonts = with pkgs; [
-      powerline-fonts
-      nerdfonts
-    ];
   };
 
   services = {
@@ -102,13 +88,13 @@
 
   users = {
     mutableUsers = false;
-    users.mudrii = {
+    users.dev = {
       isNormalUser = true;
       extraGroups = [ "wheel" "docker" ];
       shell = pkgs.fish;
       # mkpasswd -m sha-512 password
-      hashedPassword = "$6$ewXNcoQRNG$czTic9vE8CGH.eo4mabZsHVRdmTjtJF4SdDnIK0O/4STgzB5T2nD3Co.dRpVS3/uDD24YUxWrTDy2KRv7m/3N1";
-      openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC8/tE2+oIwLnCnfzPSTqiZaeW++wUPNW5fOi124eGzWfcnOQGrjuwir3sZDKMS9DLqSTDNtvJ3/EZf6z/MLN/uxUE8lA+aKaSs0yopE7csQ89Aqkvp5fvCpz3BJuZgpxtwebPZyTc7QRGQWE4lM3fix3aJhfj827bdxA+sCiq8OnNiwYSXrIag1cQigafhLy6tYtCKdWcxzJq2ebGJF2wu2LU0zArb1SAOanhEOXxz0dG1I/7yMDBDC92R287nWpL+BwxuQcDv0xh/sWnViKixKv+B9ewJnz98iQPcg3WmYWe9BYAcaqkbgMqbwfUPqOHhFXmiQWUpOjsni2O6VoiN mudrii@nixos" ];
+      hashedPassword = "$6$4NZ0n9EgTIehY9L9$5.JTOr4cYNqaHvtbLXq12hSiJoFlCwftcnWWTZUKCekaIGaQifaONQ3Rszk/C2cIAItciCYLs.urvoMbo2n55.";
+      openssh.authorizedKeys.keys = [ "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQDnXnk1ab2rY/D+KMFfLP0gzEyrk5RWB89JyYLz6uzuhXXZVe9VAE5JNexy1s0WCzdcNKYHYlRXcvCHP+nbU1+Y7IlRf4pabyCu4B3lfcSxg4vKx+CC4At32+SpGgpVNKPuGpqZ70UEzuh+4JxageNb3QtxH7b9FuNd9Lk5QdmnOtvsM1+XqFW7/zAwLq9+RTyADEZ9zWYwRagAmmE9wTQQ8zMN/ZShd901NRL5U5XHBsO+ouPOmpav6onW9S13PE731BpjTLiTjto1A+OZUbHTf/cEFPcO70Zo9xlY+G0BmpVtbGy4xKjLC2a5/31J5fTo/YQOxju+TDMIEdzueXp+SUBl2bVmIi1SGZOyqA+T27fmJx3ae9GWGKv1Nd6fF9ghw+BthNQa+KFOwjlzQ9i+hbxzYipcXFui98DRZf2rv9954Dxy/6HjqjtwrYMWQt1iE6K8kpit/o3q2p/swzKPBRxReh+mHnVRT1dmbWLBSYTcDtpeO0F8I6BauD4bLK8= dev@fedora" ];
       packages = with pkgs; [
         python39Full
       ];
@@ -214,7 +200,7 @@
     autoUpgrade = {
       enable = true;
       allowReboot = true;
-      flake = "github:mudrii/systst";
+      flake = "github:devbaze/systst";
       flags = [
         "--recreate-lock-file"
         "--no-write-lock-file"
