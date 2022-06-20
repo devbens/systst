@@ -1,87 +1,55 @@
-# Install NIxOS from flakes
+# Fully reproducible localhost
 
-# NixOs LUKS PV Home Manager Flake deployment
+[Download NixOS installation ISO](https://nixos.org/nixos/download.html)
 
-## Prep Disk
+Notes:
+1. I assume that latest **stable** (e.g. 21.11) ISO will be used for installation.
+2. Default network configuration is VPN-only, so if you don't have plans to use it you need to change iptables rules (remove `iptables -P OUTPUT DROP` from `networking.nix`) and remove `services.openvpn.servers.vpn` from `networking.nix`.
+3. GUI settings is optimized for 3840x2160 on 15".
 
-```sh
-lsblk
+## Installation
 
-wipefs -a /dev/vda
-```
+    parted /dev/vda mklabel gpt
+    parted /dev/vda mkpart EFI fat32 0% 512M
+    parted /dev/vda set 1 esp on
+    parted /dev/vda mkpart NIX ext4 512M 100%
 
-## Diff install Optional
+    cryptsetup luksFormat /dev/vda2
+    cryptsetup open /dev/vda2 nix
 
-```sh
-export ROOT_DISK=/dev/vda
+    mkfs.vfat -F32 /dev/vda1
+    mkfs.ext4 /dev/mapper/nix
 
-# Create boot partition first
-parted -a opt --script "${ROOT_DISK}" \
-    mklabel gpt \
-    mkpart primary fat32 0% 512MiB \
-    mkpart primary 512MiB 100% \
-    set 1 esp on \
-    name 1 boot \
-    set 2 lvm on \
-    name 2 root
+    mount /dev/mapper/nix /mnt/
+    mkdir /mnt/boot
+    mount /dev/vda1 /mnt/boot
 
-fdisk /dev/vda -l
-```
+    nix-env -iA nixos.gitMinimal
+    git clone https://code.dumpstack.io/infra/localhost.git /mnt/etc/nixos/
 
-## Encrypt Primary Disk
+    cd /mnt/etc/nixos
 
-```sh
-cryptsetup luksFormat /dev/disk/by-partlabel/root
+    cp wireless-networks.nix.example wireless-networks.nix
+    nano wireless-networks.nix
 
-cryptsetup luksOpen /dev/disk/by-partlabel/root root
+    cp secrets.nix.example secrets.nix
+    nano secrets.nix
 
-pvcreate /dev/mapper/root
+    nix-channel --add https://nixos.org/channels/nixos-21.11 nixos
+    nix-channel --add https://nixos.org/channels/nixos-21.11-small nixos-small
+    nix-channel --add https://nixos.org/channels/nixos-unstable unstable
+    nix-channel --update
 
-vgcreate vg /dev/mapper/root
+    nixos-generate-config --root /mnt
 
-lvcreate -L 4G -n swap vg
+    nixos-install
+    reboot
 
-lvcreate -l '100%FREE' -n root vg
+## After install
 
-lvdisplay
-```
+Initial password for `user` is `user`.
 
-## Format Disks
-
-```sh
-mkfs.fat -F 32 -n boot /dev/disk/by-partlabel/boot
-
-mkfs.ext4 -L root /dev/vg/root
-
-mkswap -L swap /dev/vg/swap
-
-swapon -s
-```
-
-## Mount
-
-```sh
-mount /dev/disk/by-label/root /mnt
-
-mkdir -p /mnt/boot
-
-mount /dev/disk/by-label/boot /mnt/boot
-
-swapon /dev/vg/swap
-```
-
-## Install system
-
-```sh
-nix-shell -p git nixFlakes
-
-git clone https://github.com/devbaze/systst.git /mnt/etc/nixos
-
-nixos-install --root /mnt --flake /mnt/etc/nixos#nixtst
-
-reboot
-
-sudo nix flake update /etc/nixos/
-
-sudo nixos-rebuild switch --flake /etc/nixos/#nixtst
-```
+    sudo nix-channel --add https://nixos.org/channels/nixos-21.11 nixos
+    sudo nix-channel --add https://nixos.org/channels/nixos-21.11-small nixos-small
+    sudo nix-channel --add https://nixos.org/channels/nixos-unstable unstable
+    sudo nix-channel --update
